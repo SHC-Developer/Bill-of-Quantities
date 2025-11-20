@@ -1,0 +1,355 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.subtitle {
+    font-size: 16px;
+    opacity: 0.9;
+}
+
+.upload-section {
+    padding: 40px;
+}
+
+.file-upload-area {
+    border: 3px dashed #667eea;
+    border-radius: 12px;
+    padding: 60px 20px;
+    text-align: center;
+    background: #f8f9ff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-upload-area:hover {
+    background: #f0f2ff;
+    border-color: #764ba2;
+}
+
+.file-upload-area.dragover {
+    background: #e8ebff;
+    border-color: #764ba2;
+    transform: scale(1.02);
+}
+
+.upload-content svg {
+    color: #667eea;
+    margin-bottom: 20px;
+}
+
+.upload-content p {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.file-hint {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 20px !important;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-weight: 500;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-secondary {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    font-weight: 500;
+}
+
+.btn-secondary:hover {
+    background: #218838;
+}
+
+.result-section {
+    padding: 40px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.result-header h2 {
+    font-size: 24px;
+    color: #333;
+}
+
+#resultContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.station-table {
+    background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e0e0e0;
+    margin-bottom: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.station-table:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.station-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 24px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+    border-radius: 8px;
+    border-left: 5px solid #667eea;
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
+    letter-spacing: 0.5px;
+}
+
+.result-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #d0d0d0;
+}
+
+.result-table thead {
+    background: linear-gradient(135deg, #dcdcdc 0%, #c8c8c8 100%);
+    position: relative;
+}
+
+.result-table th {
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 15px;
+    border-bottom: 3px solid #999;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+}
+
+.result-table th:not(:first-child) {
+    text-align: right;
+}
+
+.result-table th:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    width: 1px;
+    background: #999;
+}
+
+.result-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid #e8e8e8;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.result-table tbody tr {
+    background: #ffffff;
+}
+
+.result-table tbody tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+.result-table tbody tr:hover {
+    background: #e8f0ff !important;
+    transform: scale(1.01);
+    box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+.result-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.result-table td:first-child {
+    font-weight: 600;
+    color: #2c3e50;
+    border-right: 2px solid #e8e8e8;
+}
+
+.result-table td:not(:first-child) {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-weight: 500;
+    color: #1a1a1a;
+}
+
+/* 숫자 값 스타일 */
+.result-table td.number-cell {
+    font-weight: 600;
+}
+
+.result-table td.number-cell:not(:empty) {
+    position: relative;
+}
+
+/* 큰 숫자 강조 */
+.result-table td.number-cell[data-value]:not([data-value="0"]) {
+    color: #2c3e50;
+}
+
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+    gap: 20px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading p {
+    color: #666;
+    font-size: 16px;
+}
+
+/* 추가 스타일: 테이블 애니메이션 */
+.result-table {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.station-table {
+    animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* 인쇄 스타일 */
+@media print {
+    body {
+        background: white;
+    }
+    
+    .container {
+        box-shadow: none;
+    }
+    
+    .upload-section,
+    .result-header button {
+        display: none;
+    }
+    
+    .station-table {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #000;
+    }
+    
+    .result-table {
+        border: 1px solid #000;
+    }
+    
+    .result-table th,
+    .result-table td {
+        border: 1px solid #000;
+    }
+}
+
