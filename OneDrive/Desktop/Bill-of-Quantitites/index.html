@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>물량표 추출 사이트</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>외관조사망도 도면별 물량표 추출</h1>
+            <p class="subtitle">Excel 파일을 업로드하여 도면별 물량표를 생성합니다.</p>
+        </header>
+
+        <div class="upload-section">
+            <div class="file-upload-area" id="uploadArea">
+                <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
+                <div class="upload-content">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p>Excel 파일을 선택하거나 여기에 드래그하세요</p>
+                    <p class="file-hint">(.xlsx, .xls 파일 지원)</p>
+                    <button class="btn-primary" onclick="document.getElementById('fileInput').click()">파일 선택</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-section" id="resultSection" style="display: none;">
+            <div class="result-header">
+                <h2>처리 결과</h2>
+                <button class="btn-secondary" id="downloadBtn" style="display: none;">Excel로 다운로드</button>
+            </div>
+            <div id="resultContainer"></div>
+        </div>
+
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>파일을 처리하는 중...</p>
+        </div>
+    </div>
+
+    <!-- SheetJS 라이브러리 (Excel 파일 읽기용) -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <!-- ExcelJS 라이브러리 (Excel 파일 쓰기 및 스타일링용) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
