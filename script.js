@@ -1,6 +1,62 @@
 // 전역 변수
 let processedData = null;
 
+// 열 설정 (기본값: C, G, I, N)
+let columnSettings = {
+    station: 'A',    // Station 열
+    damage: 'C',     // 손상내용 열
+    quantity: 'G',   // 물량 열
+    count: 'I',      // 개소 열
+    type: 'N'        // 구분 열
+};
+
+// 열 문자를 인덱스로 변환 (A=0, B=1, C=2, ...)
+function columnToIndex(col) {
+    if (!col || col.length === 0) return 0;
+    const upperCol = col.toUpperCase();
+    return upperCol.charCodeAt(0) - 65; // 'A' = 65, so A=0, B=1, etc.
+}
+
+// 설정 적용 버튼 이벤트
+document.getElementById('applySettingsBtn').addEventListener('click', applySettings);
+
+// 설정 적용 함수
+function applySettings() {
+    const colStation = document.getElementById('colStation').value.toUpperCase().trim();
+    const colDamage = document.getElementById('colDamage').value.toUpperCase().trim();
+    const colQuantity = document.getElementById('colQuantity').value.toUpperCase().trim();
+    const colCount = document.getElementById('colCount').value.toUpperCase().trim();
+    const colType = document.getElementById('colType').value.toUpperCase().trim();
+    
+    // 유효성 검사
+    if (!colStation || !colDamage || !colQuantity || !colCount || !colType) {
+        alert('모든 열을 입력해주세요.');
+        return;
+    }
+    
+    if (!/^[A-Z]$/.test(colStation) || !/^[A-Z]$/.test(colDamage) || 
+        !/^[A-Z]$/.test(colQuantity) || !/^[A-Z]$/.test(colCount) || 
+        !/^[A-Z]$/.test(colType)) {
+        alert('열은 A-Z 사이의 영문자 한 글자만 입력 가능합니다.');
+        return;
+    }
+    
+    // 설정 저장
+    columnSettings.station = colStation;
+    columnSettings.damage = colDamage;
+    columnSettings.quantity = colQuantity;
+    columnSettings.count = colCount;
+    columnSettings.type = colType;
+    
+    // 기존 데이터가 있으면 다시 처리
+    if (processedData && document.getElementById('fileInput').files.length > 0) {
+        const file = document.getElementById('fileInput').files[0];
+        processFile(file);
+    } else {
+        alert('설정이 적용되었습니다. Excel 파일을 업로드하세요.');
+    }
+}
+
 // 파일 입력 이벤트 리스너
 document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
@@ -85,36 +141,36 @@ function processExcelData(data) {
     let currentStationKey = null;
     let stationIndex = 0;
     
-    // 열 인덱스 매핑 (A=0, C=2, G=6, I=8, N=13)
-    const COL_A = 0;
-    const COL_C = 2;
-    const COL_G = 6;
-    const COL_I = 8;
-    const COL_N = 13;
+    // 열 인덱스 매핑 (사용자 설정값 사용)
+    const COL_STATION = columnToIndex(columnSettings.station);
+    const COL_DAMAGE = columnToIndex(columnSettings.damage);
+    const COL_QUANTITY = columnToIndex(columnSettings.quantity);
+    const COL_COUNT = columnToIndex(columnSettings.count);
+    const COL_TYPE = columnToIndex(columnSettings.type);
     
     // 데이터 읽기
     for (let i = 0; i < data.length; i++) {
         const row = data[i] || [];
         
-        const cellA = (row[COL_A] || '').toString().trim();
-        const cellC = (row[COL_C] || '').toString().trim();
-        const cellG = (row[COL_G] || '').toString().trim();
-        const cellI = (row[COL_I] || '').toString().trim();
+        const cellStation = (row[COL_STATION] || '').toString().trim();
+        const cellDamage = (row[COL_DAMAGE] || '').toString().trim();
+        const cellQuantity = (row[COL_QUANTITY] || '').toString().trim();
+        const cellCount = (row[COL_COUNT] || '').toString().trim();
         
         // Station 행 판단:
-        // 1. A열에 값이 있고
-        // 2. C열이 비어있거나 (병합 셀의 경우)
-        // 3. C열에 값이 있어도 G열과 I열이 비어있는 경우 (헤더 행이 아닌 Station 행)
-        const isStationRow = cellA !== '' && 
-                            (cellC === '' || (cellG === '' && cellI === '' && cellC !== '손상내용'));
+        // 1. Station 열에 값이 있고
+        // 2. Damage 열이 비어있거나 (병합 셀의 경우)
+        // 3. Damage 열에 값이 있어도 Quantity 열과 Count 열이 비어있는 경우 (헤더 행이 아닌 Station 행)
+        const isStationRow = cellStation !== '' && 
+                            (cellDamage === '' || (cellQuantity === '' && cellCount === '' && cellDamage !== '손상내용'));
         
         if (isStationRow) {
             stationIndex++;
-            const uniqueKey = `ST_${stationIndex}_${cellA}`;
+            const uniqueKey = `ST_${stationIndex}_${cellStation}`;
             
             if (!stations[uniqueKey]) {
                 stations[uniqueKey] = {
-                    name: cellA,
+                    name: cellStation,
                     row: i,
                     data: {}
                 };
@@ -122,13 +178,13 @@ function processExcelData(data) {
             currentStationKey = uniqueKey;
         }
         // 일반 데이터 행
-        else if (currentStationKey && cellC !== '') {
-            const 손상 = cellC;
+        else if (currentStationKey && cellDamage !== '') {
+            const 손상 = cellDamage;
             if (손상 === '') continue;
             
-            const qty = parseFloat(row[COL_G]) || 0;
-            const pcs = parseInt(row[COL_I]) || 0;
-            const 구분 = (row[COL_N] || '').toString().trim();
+            const qty = parseFloat(row[COL_QUANTITY]) || 0;
+            const pcs = parseInt(row[COL_COUNT]) || 0;
+            const 구분 = (row[COL_TYPE] || '').toString().trim();
             
             // 손상별 데이터 초기화
             if (!stations[currentStationKey].data[손상]) {

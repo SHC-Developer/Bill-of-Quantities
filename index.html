@@ -14,6 +14,34 @@
         </header>
 
         <div class="upload-section">
+            <div class="settings-section" id="settingsSection">
+                <h3>열 설정</h3>
+                <p class="settings-hint">Excel 파일에서 사용할 열을 설정하세요. (기본값: C, G, I, N)</p>
+                <div class="settings-grid">
+                    <div class="setting-item">
+                        <label for="colStation">Station 열 (A):</label>
+                        <input type="text" id="colStation" value="A" maxlength="1" placeholder="A">
+                    </div>
+                    <div class="setting-item">
+                        <label for="colDamage">손상내용 열:</label>
+                        <input type="text" id="colDamage" value="C" maxlength="1" placeholder="C">
+                    </div>
+                    <div class="setting-item">
+                        <label for="colQuantity">물량 열:</label>
+                        <input type="text" id="colQuantity" value="G" maxlength="1" placeholder="G">
+                    </div>
+                    <div class="setting-item">
+                        <label for="colCount">개소 열:</label>
+                        <input type="text" id="colCount" value="I" maxlength="1" placeholder="I">
+                    </div>
+                    <div class="setting-item">
+                        <label for="colType">구분 열 (보수/신규/재손상/재결함):</label>
+                        <input type="text" id="colType" value="N" maxlength="1" placeholder="N">
+                    </div>
+                </div>
+                <button class="btn-primary" id="applySettingsBtn">설정 적용</button>
+            </div>
+
             <div class="file-upload-area" id="uploadArea">
                 <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;">
                 <div class="upload-content">
