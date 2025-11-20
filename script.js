@@ -22,27 +22,25 @@ document.getElementById('applySettingsBtn').addEventListener('click', applySetti
 
 // 설정 적용 함수
 function applySettings() {
-    const colStation = document.getElementById('colStation').value.toUpperCase().trim();
     const colDamage = document.getElementById('colDamage').value.toUpperCase().trim();
     const colQuantity = document.getElementById('colQuantity').value.toUpperCase().trim();
     const colCount = document.getElementById('colCount').value.toUpperCase().trim();
     const colType = document.getElementById('colType').value.toUpperCase().trim();
     
     // 유효성 검사
-    if (!colStation || !colDamage || !colQuantity || !colCount || !colType) {
+    if (!colDamage || !colQuantity || !colCount || !colType) {
         alert('모든 열을 입력해주세요.');
         return;
     }
     
-    if (!/^[A-Z]$/.test(colStation) || !/^[A-Z]$/.test(colDamage) || 
-        !/^[A-Z]$/.test(colQuantity) || !/^[A-Z]$/.test(colCount) || 
-        !/^[A-Z]$/.test(colType)) {
+    if (!/^[A-Z]$/.test(colDamage) || !/^[A-Z]$/.test(colQuantity) || 
+        !/^[A-Z]$/.test(colCount) || !/^[A-Z]$/.test(colType)) {
         alert('열은 A-Z 사이의 영문자 한 글자만 입력 가능합니다.');
         return;
     }
     
-    // 설정 저장
-    columnSettings.station = colStation;
+    // 설정 저장 (Station은 항상 A로 고정)
+    columnSettings.station = 'A';
     columnSettings.damage = colDamage;
     columnSettings.quantity = colQuantity;
     columnSettings.count = colCount;
