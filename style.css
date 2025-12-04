@@ -326,6 +326,41 @@ header h1 {
     color: #2c3e50;
 }
 
+.tab-nav {
+    display: flex;
+    gap: 12px;
+    padding: 20px 40px 0;
+    background: #f5f6ff;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.tab-btn {
+    flex: 1;
+    background: #e8ebff;
+    border: none;
+    padding: 14px 18px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #5a5f80;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tab-btn.active {
+    background: white;
+    color: #4a3fbf;
+    box-shadow: 0 -3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.tab-panel {
+    display: none;
+}
+
+.tab-panel.active {
+    display: block;
+}
+
 .page-footer {
     padding: 30px 40px 40px;
     border-top: 1px solid #e0e0e0;
@@ -391,6 +426,11 @@ header h1 {
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.dual-input {
+    display: flex;
+    gap: 10px;
 }
 
 .generator-actions {

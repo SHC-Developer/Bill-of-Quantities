@@ -514,3 +514,297 @@ document.getElementById('downloadBtn').addEventListener('click', async () => {
     }
 });
 
+// =======================
+// 탭 전환 로직
+// =======================
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabPanels = document.querySelectorAll('.tab-panel');
+
+if (tabButtons.length > 0) {
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            if (button.classList.contains('active')) return;
+
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanels.forEach(panel => panel.classList.remove('active'));
+
+            button.classList.add('active');
+            const targetPanel = document.getElementById(button.dataset.target);
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+            }
+        });
+    });
+}
+
+// =======================
+// 랜덤 블록 생성 로직
+// =======================
+const RANDOM_ROWS = 4;
+const RANDOM_COLS = 5;
+let randomBlocks = [];
+
+const randomStatusEl = document.getElementById('randomStatusMessage');
+const randomPreviewHintEl = document.getElementById('randomPreviewHint');
+const randomPreviewContainer = document.getElementById('randomBlockPreview');
+const randomGenerateBtn = document.getElementById('randomGenerateBtn');
+const randomDownloadBtn = document.getElementById('randomDownloadBtn');
+
+if (randomGenerateBtn && randomDownloadBtn) {
+    randomGenerateBtn.addEventListener('click', randomHandleGenerate);
+    randomDownloadBtn.addEventListener('click', randomHandleDownload);
+}
+
+function randomHandleGenerate() {
+    const blockCount = parseInt(document.getElementById('randomBlockCount').value, 10);
+    const avgMin = parseFloat(document.getElementById('randomAvgMin').value);
+    const avgMax = parseFloat(document.getElementById('randomAvgMax').value);
+    const valueMin = parseFloat(document.getElementById('randomValueMin').value);
+    const valueMax = parseFloat(document.getElementById('randomValueMax').value);
+    const maxAttempt = parseInt(document.getElementById('randomMaxAttempt').value, 10);
+
+    if (!randomValidateInputs({ blockCount, avgMin, avgMax, valueMin, valueMax, maxAttempt })) {
+        return;
+    }
+
+    try {
+        randomShowStatus('조건을 만족하는 블록을 생성하는 중입니다...', false);
+        randomBlocks = randomGenerateBlocks({
+            blockCount,
+            rows: RANDOM_ROWS,
+            cols: RANDOM_COLS,
+            avgMin,
+            avgMax,
+            valueMin,
+            valueMax,
+            maxAttempt
+        });
+        randomRenderPreview(randomBlocks);
+        randomShowStatus(`총 ${randomBlocks.length}개 블록을 생성했습니다.`, true);
+        randomDownloadBtn.disabled = randomBlocks.length === 0;
+    } catch (error) {
+        console.error(error);
+        randomShowStatus(error.message, false);
+        randomBlocks = [];
+        randomRenderPreview(randomBlocks);
+        randomDownloadBtn.disabled = true;
+    }
+}
+
+function randomHandleDownload() {
+    if (!randomBlocks.length) {
+        randomShowStatus('먼저 데이터를 생성하세요.', false);
+        return;
+    }
+
+    if (typeof ExcelJS === 'undefined') {
+        randomShowStatus('ExcelJS 라이브러리가 로드되지 않았습니다. 페이지를 새로고침해주세요.', false);
+        return;
+    }
+
+    randomExportToExcel(randomBlocks);
+}
+
+function randomValidateInputs(values) {
+    const { blockCount, avgMin, avgMax, valueMin, valueMax, maxAttempt } = values;
+
+    if (Number.isNaN(blockCount) || blockCount < 1 || blockCount > 100) {
+        randomShowStatus('블록 수는 1~100 사이로 입력해주세요.', false);
+        return false;
+    }
+
+    if (Number.isNaN(avgMin) || Number.isNaN(avgMax) || avgMin >= avgMax) {
+        randomShowStatus('평균값 최소/최대 범위를 올바르게 입력해주세요.', false);
+        return false;
+    }
+
+    if (Number.isNaN(valueMin) || Number.isNaN(valueMax) || valueMin >= valueMax) {
+        randomShowStatus('데이터 값 최소/최대 범위를 올바르게 입력해주세요.', false);
+        return false;
+    }
+
+    if (avgMin < valueMin || avgMax > valueMax) {
+        randomShowStatus('평균 범위는 값 범위 안에 포함되어야 합니다.', false);
+        return false;
+    }
+
+    if (Number.isNaN(maxAttempt) || maxAttempt < 1) {
+        randomShowStatus('최대 시도 횟수는 1 이상이어야 합니다.', false);
+        return false;
+    }
+
+    return true;
+}
+
+function randomGenerateBlocks(options) {
+    const { blockCount, rows, cols, avgMin, avgMax, valueMin, valueMax, maxAttempt } = options;
+    const blocks = [];
+
+    for (let blockIndex = 1; blockIndex <= blockCount; blockIndex++) {
+        let attempt = 0;
+        let success = false;
+        let blockValues = [];
+        let averageValue = 0;
+
+        while (attempt < maxAttempt && !success) {
+            attempt++;
+            const { values, average } = randomCreateBlock(rows, cols, valueMin, valueMax);
+            if (average >= avgMin && average <= avgMax) {
+                success = true;
+                blockValues = values;
+                averageValue = average;
+            }
+        }
+
+        if (!success) {
+            throw new Error(`블록 ${blockIndex}에서 평균 조건을 만족하지 못했습니다. (시도 ${maxAttempt}회)`);
+        }
+
+        blocks.push({
+            index: blockIndex,
+            values: blockValues,
+            average: parseFloat(averageValue.toFixed(2))
+        });
+    }
+
+    return blocks;
+}
+
+function randomCreateBlock(rows, cols, min, max) {
+    const values = [];
+    let sum = 0;
+    const totalCells = rows * cols;
+
+    for (let r = 0; r < rows; r++) {
+        const rowValues = [];
+        for (let c = 0; c < cols; c++) {
+            const val = randomGetRandomInclusive(min, max);
+            const roundedVal = parseFloat(val.toFixed(2));
+            rowValues.push(roundedVal);
+            sum += roundedVal;
+        }
+        values.push(rowValues);
+    }
+
+    const average = sum / totalCells;
+    return { values, average };
+}
+
+function randomGetRandomInclusive(min, max) {
+    return min + Math.random() * (max - min);
+}
+
+function randomRenderPreview(blocks) {
+    if (!randomPreviewContainer || !randomPreviewHintEl) return;
+
+    randomPreviewContainer.innerHTML = '';
+
+    if (!blocks.length) {
+        randomPreviewHintEl.textContent = '조건을 충족하는 데이터를 먼저 생성하세요.';
+        return;
+    }
+
+    randomPreviewHintEl.textContent = '생성된 블록 중 일부를 확인하세요.';
+
+    blocks.forEach(block => {
+        const card = document.createElement('div');
+        card.className = 'block-card';
+
+        const title = document.createElement('h4');
+        title.textContent = `Block ${block.index}`;
+        card.appendChild(title);
+
+        const table = document.createElement('table');
+        table.className = 'block-table';
+        const tbody = document.createElement('tbody');
+
+        block.values.forEach(rowValues => {
+            const row = document.createElement('tr');
+            rowValues.forEach(value => {
+                const cell = document.createElement('td');
+                cell.textContent = value.toFixed(2);
+                row.appendChild(cell);
+            });
+            tbody.appendChild(row);
+        });
+
+        table.appendChild(tbody);
+        card.appendChild(table);
+
+        const avg = document.createElement('div');
+        avg.className = 'block-average';
+        avg.textContent = `평균: ${block.average.toFixed(2)}`;
+        card.appendChild(avg);
+
+        randomPreviewContainer.appendChild(card);
+    });
+}
+
+function randomShowStatus(message, isSuccess) {
+    if (!randomStatusEl) return;
+    randomStatusEl.textContent = message;
+    randomStatusEl.classList.toggle('success', isSuccess);
+    randomStatusEl.style.display = 'block';
+}
+
+async function randomExportToExcel(blocks) {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('랜덤 데이터');
+    let currentRow = 1;
+
+    blocks.forEach(block => {
+        worksheet.mergeCells(currentRow, 1, currentRow, 5);
+        const titleCell = worksheet.getCell(currentRow, 1);
+        titleCell.value = `Block ${block.index}`;
+        titleCell.font = { bold: true, size: 12 };
+        titleCell.alignment = { vertical: 'middle', horizontal: 'left' };
+
+        worksheet.getCell(currentRow, 7).value = '평균';
+        const avgCell = worksheet.getCell(currentRow, 8);
+        avgCell.value = block.average;
+        avgCell.numFmt = '#,##0.00';
+        avgCell.font = { bold: true };
+
+        currentRow++;
+
+        block.values.forEach(rowValues => {
+            rowValues.forEach((value, idx) => {
+                const cell = worksheet.getCell(currentRow, idx + 1);
+                cell.value = value;
+                cell.numFmt = '#,##0.00';
+                cell.alignment = { horizontal: 'right' };
+                cell.border = {
+                    top: { style: 'thin', color: { argb: 'FFDDDDDD' } },
+                    left: { style: 'thin', color: { argb: 'FFDDDDDD' } },
+                    bottom: { style: 'thin', color: { argb: 'FFDDDDDD' } },
+                    right: { style: 'thin', color: { argb: 'FFDDDDDD' } }
+                };
+            });
+            currentRow++;
+        });
+
+        currentRow++; // 빈 행
+    });
+
+    worksheet.columns = [
+        { width: 12 },
+        { width: 12 },
+        { width: 12 },
+        { width: 12 },
+        { width: 12 },
+        { width: 4 },
+        { width: 10 },
+        { width: 12 }
+    ];
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = '랜덤_블록_데이터.xlsx';
+    link.click();
+    window.URL.revokeObjectURL(url);
+}
